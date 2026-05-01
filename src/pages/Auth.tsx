@@ -120,11 +120,11 @@ const Auth = () => {
                 className="pl-9"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                placeholder="เช่น BASX"
+                placeholder="x"
                 required
                 minLength={3}
                 maxLength={24}
-                autoComplete="username"
+                autoComplete="off"
               />
             </div>
           </div>
@@ -137,6 +137,7 @@ const Auth = () => {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                placeholder="x"
                 required
                 minLength={6}
                 maxLength={72}
