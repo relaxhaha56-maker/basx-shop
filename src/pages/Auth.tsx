@@ -137,6 +137,7 @@ const Auth = () => {
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                placeholder="x"
                 required
                 minLength={6}
                 maxLength={72}
