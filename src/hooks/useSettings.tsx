@@ -15,6 +15,11 @@ export type SiteSettings = {
   bank_account_name: string;
   discord_url: string;
   banner_text: string;
+  easyslip_enabled: boolean;
+  truemoney_enabled: boolean;
+  truemoney_phone: string;
+  expected_account_name: string;
+  expected_account_number: string;
 };
 
 const SettingsContext = createContext<SiteSettings | null>(null);
