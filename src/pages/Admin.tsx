@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Trash2, Plus, Check, X } from "lucide-react";
+import { Trash2, Plus, Check, X, Upload, Image as ImageIcon, Eye } from "lucide-react";
 
 const Admin = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -26,17 +26,21 @@ const Admin = () => {
       <Tabs defaultValue="settings" className="space-y-6">
         <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="settings">ตั้งค่าเว็บ</TabsTrigger>
+          <TabsTrigger value="payment">การชำระเงิน</TabsTrigger>
           <TabsTrigger value="appearance">สี & เอฟเฟกต์</TabsTrigger>
           <TabsTrigger value="products">สินค้า</TabsTrigger>
           <TabsTrigger value="categories">หมวดหมู่</TabsTrigger>
+          <TabsTrigger value="discounts">โค้ดส่วนลด</TabsTrigger>
           <TabsTrigger value="announcements">ประกาศ</TabsTrigger>
           <TabsTrigger value="topups">เติมเงิน</TabsTrigger>
           <TabsTrigger value="orders">คำสั่งซื้อ</TabsTrigger>
         </TabsList>
         <TabsContent value="settings"><SettingsTab /></TabsContent>
+        <TabsContent value="payment"><PaymentTab /></TabsContent>
         <TabsContent value="appearance"><AppearanceTab /></TabsContent>
         <TabsContent value="products"><ProductsTab /></TabsContent>
         <TabsContent value="categories"><CategoriesTab /></TabsContent>
+        <TabsContent value="discounts"><DiscountsTab /></TabsContent>
         <TabsContent value="announcements"><AnnouncementsTab /></TabsContent>
         <TabsContent value="topups"><TopupsTab /></TabsContent>
         <TabsContent value="orders"><OrdersTab /></TabsContent>
@@ -58,12 +62,51 @@ const SettingsTab = () => {
       <Field label="ชื่อร้าน"><Input value={s.shop_name} onChange={e=>setS({...s, shop_name:e.target.value})} /></Field>
       <Field label="ข้อความ Banner"><Input value={s.banner_text} onChange={e=>setS({...s, banner_text:e.target.value})} /></Field>
       <Field label="Discord URL"><Input value={s.discord_url} onChange={e=>setS({...s, discord_url:e.target.value})} /></Field>
-      <h3 className="font-bold pt-2">ข้อมูลบัญชีธนาคาร</h3>
-      <Field label="ชื่อธนาคาร"><Input value={s.bank_name} onChange={e=>setS({...s, bank_name:e.target.value})} /></Field>
-      <Field label="เลขบัญชี"><Input value={s.bank_account_number} onChange={e=>setS({...s, bank_account_number:e.target.value})} /></Field>
-      <Field label="ชื่อบัญชี"><Input value={s.bank_account_name} onChange={e=>setS({...s, bank_account_name:e.target.value})} /></Field>
       <Button onClick={save} className="gradient-primary text-primary-foreground">บันทึก</Button>
     </Card>
+  );
+};
+
+const PaymentTab = () => {
+  const [s, setS] = useState<any>(null);
+  useEffect(() => { supabase.from("site_settings").select("*").eq("id",1).maybeSingle().then(({data}) => setS(data)); }, []);
+  if (!s) return <div>กำลังโหลด...</div>;
+  const save = async () => {
+    const { error } = await supabase.from("site_settings").update(s).eq("id", 1);
+    if (error) toast.error(error.message); else toast.success("บันทึกแล้ว");
+  };
+  return (
+    <div className="space-y-4 max-w-2xl">
+      <Card className="p-6 gradient-card space-y-4">
+        <h3 className="font-bold flex items-center gap-2">🏦 ธนาคาร + ตรวจสลิปอัตโนมัติ (EasySlip)</h3>
+        <Field label="ชื่อธนาคาร"><Input value={s.bank_name} onChange={e=>setS({...s, bank_name:e.target.value})} /></Field>
+        <Field label="เลขบัญชี (โชว์ให้ลูกค้า)"><Input value={s.bank_account_number} onChange={e=>setS({...s, bank_account_number:e.target.value})} /></Field>
+        <Field label="ชื่อบัญชี (โชว์ให้ลูกค้า)"><Input value={s.bank_account_name} onChange={e=>setS({...s, bank_account_name:e.target.value})} /></Field>
+        <div className="border-t border-border pt-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>เปิดบอทเช็คสลิปอัตโนมัติ (EasySlip)</Label>
+              <p className="text-xs text-muted-foreground">ถ้าปิด สลิปจะรอแอดมินอนุมัติเอง</p>
+            </div>
+            <Switch checked={s.easyslip_enabled} onCheckedChange={v=>setS({...s, easyslip_enabled:v})} />
+          </div>
+          <Field label="ชื่อบัญชีตามที่จะปรากฏในสลิป (ใช้ตรวจสอบ)"><Input value={s.expected_account_name} onChange={e=>setS({...s, expected_account_name:e.target.value})} placeholder="เช่น สรุณวริทธิ์ ..." /></Field>
+          <Field label="เลขบัญชีจริง (ใช้เปรียบเทียบ 4 ตัวท้าย)"><Input value={s.expected_account_number} onChange={e=>setS({...s, expected_account_number:e.target.value})} placeholder="เช่น 1234567890" /></Field>
+        </div>
+      </Card>
+
+      <Card className="p-6 gradient-card space-y-4">
+        <h3 className="font-bold flex items-center gap-2">🧧 TrueMoney Wallet ซองของขวัญ (เติมอัตโนมัติ)</h3>
+        <div className="flex items-center justify-between">
+          <Label>เปิดรับซอง TrueMoney อัตโนมัติ</Label>
+          <Switch checked={s.truemoney_enabled} onCheckedChange={v=>setS({...s, truemoney_enabled:v})} />
+        </div>
+        <Field label="เบอร์ TrueMoney Wallet ของร้าน (10 หลัก)"><Input value={s.truemoney_phone} onChange={e=>setS({...s, truemoney_phone:e.target.value})} placeholder="0812345678" /></Field>
+        <p className="text-xs text-muted-foreground">ลูกค้าจะวางลิงก์ซอง → ระบบรับเงินเข้าเบอร์นี้ → เติม Wallet ลูกค้าอัตโนมัติ</p>
+      </Card>
+
+      <Button onClick={save} className="gradient-primary text-primary-foreground">บันทึกทั้งหมด</Button>
+    </div>
   );
 };
 
@@ -114,6 +157,40 @@ const AppearanceTab = () => {
   );
 };
 
+// Image upload helper
+const ImageUpload = ({ value, onChange }: { value: string; onChange: (url: string) => void }) => {
+  const [busy, setBusy] = useState(false);
+  const upload = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) return toast.error("ไฟล์ใหญ่เกิน 5 MB");
+    if (!file.type.startsWith("image/")) return toast.error("ต้องเป็นไฟล์รูปภาพ");
+    setBusy(true);
+    const ext = file.name.split(".").pop();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const { error } = await supabase.storage.from("products").upload(path, file, { upsert: false });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    const { data } = supabase.storage.from("products").getPublicUrl(path);
+    onChange(data.publicUrl);
+    toast.success("อัปโหลดสำเร็จ");
+  };
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
+        <div className="h-20 w-20 rounded bg-secondary overflow-hidden shrink-0 flex items-center justify-center">
+          {value ? <img src={value} className="w-full h-full object-cover" alt="" /> : <ImageIcon className="h-6 w-6 text-muted-foreground"/>}
+        </div>
+        <label className="cursor-pointer">
+          <input type="file" accept="image/*" className="hidden" onChange={e=>e.target.files?.[0] && upload(e.target.files[0])} />
+          <span className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-secondary border border-border text-sm hover:bg-secondary/80">
+            <Upload className="h-4 w-4"/> {busy ? "กำลังอัปโหลด..." : "อัปโหลดรูป (≤5MB)"}
+          </span>
+        </label>
+        {value && <Button size="sm" variant="ghost" onClick={()=>onChange("")}>ลบ</Button>}
+      </div>
+    </div>
+  );
+};
+
 const ProductsTab = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
@@ -134,6 +211,7 @@ const ProductsTab = () => {
     if (!editing) return;
     const payload = {...editing};
     if (payload.discount_price === "" || payload.discount_price === null) payload.discount_price = null;
+    delete payload.categories;
     if (payload.id) {
       const { error } = await supabase.from("products").update(payload).eq("id", payload.id);
       if (error) return toast.error(error.message);
@@ -159,7 +237,7 @@ const ProductsTab = () => {
           <h3 className="font-bold">{editing.id ? "แก้ไขสินค้า" : "สินค้าใหม่"}</h3>
           <Field label="ชื่อสินค้า"><Input value={editing.name} onChange={e=>setEditing({...editing, name:e.target.value})} /></Field>
           <Field label="คำอธิบาย"><Textarea value={editing.description||""} onChange={e=>setEditing({...editing, description:e.target.value})} /></Field>
-          <Field label="URL รูปภาพ"><Input value={editing.image_url||""} onChange={e=>setEditing({...editing, image_url:e.target.value})} /></Field>
+          <Field label="รูปภาพ"><ImageUpload value={editing.image_url||""} onChange={url=>setEditing({...editing, image_url:url})} /></Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="ราคาเต็ม"><Input type="number" step="0.01" value={editing.price} onChange={e=>setEditing({...editing, price:parseFloat(e.target.value)||0})} /></Field>
             <Field label="ราคาลด (ว่าง=ไม่ลด)"><Input type="number" step="0.01" value={editing.discount_price ?? ""} onChange={e=>setEditing({...editing, discount_price: e.target.value===""?null:parseFloat(e.target.value)})} /></Field>
@@ -198,7 +276,7 @@ const ProductsTab = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold truncate">{p.name}</p>
-              <p className="text-xs text-muted-foreground">{p.categories?.name || "-"} • ฿{Number(p.discount_price ?? p.price).toFixed(2)} • {p.active ? "เปิดขาย" : "ปิด"}</p>
+              <p className="text-xs text-muted-foreground">{p.categories?.name || "-"} • ฿{Number(p.discount_price ?? p.price).toFixed(2)} • {p.active ? "เปิดขาย" : "ปิด"} • {p.delivery_type}</p>
             </div>
             <Button size="sm" variant="outline" onClick={() => setStockProduct(p)}>สต็อก</Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(p)}>แก้ไข</Button>
@@ -214,33 +292,44 @@ const StockEditor = ({ product, onClose }: { product: any; onClose: () => void }
   const [items, setItems] = useState<any[]>([]);
   const [keyVal, setKeyVal] = useState("");
   const [linkVal, setLinkVal] = useState("");
+  const dt = product.delivery_type as string;
+  const needKey = dt === "key" || dt === "key_link";
+  const needLink = dt === "link" || dt === "key_link";
+
   const load = async () => {
     const { data } = await supabase.from("product_stock").select("*").eq("product_id", product.id).order("created_at",{ascending:false});
     setItems((data as any) || []);
   };
   useEffect(() => { load(); }, [product.id]);
   const add = async () => {
-    if (!keyVal && !linkVal) return toast.error("ใส่ key หรือ link อย่างน้อย 1");
-    const { error } = await supabase.from("product_stock").insert({ product_id: product.id, key_value: keyVal||null, link_value: linkVal||null });
+    if (needKey && !keyVal) return toast.error("ต้องใส่คีย์");
+    if (needLink && !linkVal) return toast.error("ต้องใส่ลิงก์");
+    const { error } = await supabase.from("product_stock").insert({
+      product_id: product.id,
+      key_value: needKey ? keyVal : null,
+      link_value: needLink ? linkVal : null,
+    });
     if (error) return toast.error(error.message);
     setKeyVal(""); setLinkVal(""); load();
+    toast.success("เพิ่มสต็อกแล้ว");
   };
   const del = async (id: string) => { await supabase.from("product_stock").delete().eq("id", id); load(); };
   const available = items.filter(i => !i.sold).length;
   return (
     <Card className="p-6 gradient-card border-glow space-y-3">
       <div className="flex justify-between"><h3 className="font-bold">สต็อก: {product.name} ({available} เหลือ)</h3><Button variant="ghost" size="sm" onClick={onClose}>ปิด</Button></div>
-      <div className="grid sm:grid-cols-3 gap-2">
-        <Input placeholder="คีย์ (ถ้ามี)" value={keyVal} onChange={e=>setKeyVal(e.target.value)} />
-        <Input placeholder="ลิงก์ (ถ้ามี)" value={linkVal} onChange={e=>setLinkVal(e.target.value)} />
-        <Button onClick={add} className="gradient-primary text-primary-foreground"><Plus className="h-4 w-4 mr-1"/>เพิ่มสต็อก</Button>
+      <p className="text-xs text-muted-foreground">รูปแบบสินค้า: {dt === "key" ? "คีย์เท่านั้น" : dt === "link" ? "ลิงก์เท่านั้น" : "คีย์ + ลิงก์"}</p>
+      <div className="grid gap-2">
+        {needKey && <Input placeholder="คีย์ที่จะส่งให้ลูกค้า" value={keyVal} onChange={e=>setKeyVal(e.target.value)} />}
+        {needLink && <Input placeholder="ลิงก์โหลดที่จะส่งให้ลูกค้า" value={linkVal} onChange={e=>setLinkVal(e.target.value)} />}
+        <Button onClick={add} className="gradient-primary text-primary-foreground"><Plus className="h-4 w-4 mr-1"/>เพิ่มสต็อก 1 ชิ้น</Button>
       </div>
       <div className="space-y-1 max-h-64 overflow-auto">
         {items.map(i => (
           <div key={i.id} className="flex items-center gap-2 p-2 rounded bg-secondary text-xs">
             <span className={`px-2 py-0.5 rounded ${i.sold ? "bg-destructive/30 text-destructive" : "bg-primary/20 text-primary"}`}>{i.sold ? "ขายแล้ว" : "พร้อมขาย"}</span>
             <code className="flex-1 truncate">{i.key_value || "-"} | {i.link_value || "-"}</code>
-            <Button size="sm" variant="ghost" onClick={()=>del(i.id)}><Trash2 className="h-3.5 w-3.5"/></Button>
+            {!i.sold && <Button size="sm" variant="ghost" onClick={()=>del(i.id)}><Trash2 className="h-3.5 w-3.5"/></Button>}
           </div>
         ))}
       </div>
@@ -288,6 +377,93 @@ const CategoriesTab = () => {
   );
 };
 
+const DiscountsTab = () => {
+  const [items, setItems] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [code, setCode] = useState("");
+  const [type, setType] = useState("percent");
+  const [value, setValue] = useState(10);
+  const [productId, setProductId] = useState("all");
+  const [maxUses, setMaxUses] = useState<string>("");
+
+  const load = async () => {
+    const { data } = await supabase.from("discount_codes").select("*, products(name)").order("created_at",{ascending:false});
+    setItems((data as any) || []);
+    const { data: p } = await supabase.from("products").select("id, name").order("name");
+    setProducts((p as any) || []);
+  };
+  useEffect(() => { load(); }, []);
+
+  const add = async () => {
+    if (!code) return toast.error("ใส่โค้ด");
+    const { error } = await supabase.from("discount_codes").insert({
+      code: code.toUpperCase().trim(),
+      discount_type: type,
+      discount_value: value,
+      product_id: productId === "all" ? null : productId,
+      max_uses: maxUses ? parseInt(maxUses) : null,
+    });
+    if (error) return toast.error(error.message);
+    setCode(""); setValue(10); setMaxUses(""); setProductId("all"); load();
+    toast.success("สร้างโค้ดแล้ว");
+  };
+  const del = async (id: string) => { if (!confirm("ลบโค้ด?")) return; await supabase.from("discount_codes").delete().eq("id", id); load(); };
+  const toggle = async (i: any) => { await supabase.from("discount_codes").update({ active: !i.active }).eq("id", i.id); load(); };
+
+  return (
+    <div className="space-y-4 max-w-3xl">
+      <Card className="p-6 gradient-card space-y-3">
+        <h3 className="font-bold">สร้างโค้ดส่วนลดใหม่</h3>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="โค้ด"><Input placeholder="SAVE10" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} /></Field>
+          <Field label="ประเภท">
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger><SelectValue/></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="percent">ลด %</SelectItem>
+                <SelectItem value="amount">ลดเป็นบาท</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label={type === "percent" ? "ลด (%)" : "ลด (บาท)"}>
+            <Input type="number" step="0.01" value={value} onChange={e=>setValue(parseFloat(e.target.value)||0)} />
+          </Field>
+          <Field label="จำกัดจำนวนครั้ง (ว่าง=ไม่จำกัด)">
+            <Input type="number" value={maxUses} onChange={e=>setMaxUses(e.target.value)} />
+          </Field>
+          <Field label="ใช้กับสินค้า">
+            <Select value={productId} onValueChange={setProductId}>
+              <SelectTrigger><SelectValue/></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">ทุกสินค้า</SelectItem>
+                {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+        <Button onClick={add} className="gradient-primary text-primary-foreground"><Plus className="h-4 w-4 mr-1"/>สร้างโค้ด</Button>
+      </Card>
+
+      <div className="space-y-2">
+        {items.map(i => (
+          <Card key={i.id} className="p-4 gradient-card flex items-center gap-3 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-primary">{i.code}</p>
+              <p className="text-xs text-muted-foreground">
+                {i.discount_type === "percent" ? `ลด ${i.discount_value}%` : `ลด ฿${i.discount_value}`} •
+                {i.products?.name ? ` เฉพาะ "${i.products.name}"` : " ทุกสินค้า"} •
+                ใช้แล้ว {i.uses_count}{i.max_uses ? `/${i.max_uses}` : ""} ครั้ง
+              </p>
+            </div>
+            <Switch checked={i.active} onCheckedChange={()=>toggle(i)} />
+            <Button size="sm" variant="ghost" onClick={()=>del(i.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const AnnouncementsTab = () => {
   const [items, setItems] = useState<any[]>([]);
   const [title, setTitle] = useState(""); const [body, setBody] = useState("");
@@ -322,6 +498,15 @@ const AnnouncementsTab = () => {
   );
 };
 
+const SlipPreview = ({ path }: { path: string }) => {
+  const [url, setUrl] = useState<string>("");
+  useEffect(() => {
+    supabase.storage.from("slips").createSignedUrl(path, 600).then(({data}) => data?.signedUrl && setUrl(data.signedUrl));
+  }, [path]);
+  if (!url) return <span className="text-xs text-muted-foreground">โหลดสลิป...</span>;
+  return <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary text-xs hover:underline"><Eye className="h-3.5 w-3.5"/>ดูสลิป</a>;
+};
+
 const TopupsTab = () => {
   const [items, setItems] = useState<any[]>([]);
   const load = () => supabase.from("topup_requests").select("*, profiles(username, display_name)").order("created_at",{ascending:false}).then(({data})=>setItems((data as any)||[]));
@@ -341,8 +526,14 @@ const TopupsTab = () => {
       {items.map(t => (
         <Card key={t.id} className="p-4 gradient-card flex items-center gap-3 flex-wrap">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold">฿{Number(t.amount).toFixed(2)} — {t.profiles?.display_name || t.profiles?.username || t.user_id.slice(0,8)}</p>
-            <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString("th-TH")} • {t.slip_note || "-"}</p>
+            <p className="font-semibold">
+              {t.topup_type === "truemoney" ? "🧧" : "🏦"} ฿{Number(t.amount).toFixed(2)} —
+              {" "}{t.profiles?.display_name || t.profiles?.username || t.user_id.slice(0,8)}
+              {t.auto_verified && <span className="ml-2 text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">อัตโนมัติ ✓</span>}
+            </p>
+            <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleString("th-TH")} • {t.slip_note || ""}</p>
+            {t.slip_url && <div className="mt-1"><SlipPreview path={t.slip_url}/></div>}
+            {t.voucher_url && <p className="text-xs mt-1 text-muted-foreground truncate">🧧 {t.voucher_url}</p>}
           </div>
           <span className={`px-2 py-1 rounded text-xs ${t.status==="pending"?"bg-secondary":t.status==="approved"?"bg-primary/20 text-primary":"bg-destructive/20 text-destructive"}`}>{t.status}</span>
           {t.status==="pending" && <>
@@ -366,7 +557,7 @@ const OrdersTab = () => {
       {items.map(o => (
         <Card key={o.id} className="p-4 gradient-card text-sm">
           <div className="flex justify-between"><span className="font-semibold">{o.product_name}</span><span className="text-primary">฿{Number(o.price_paid).toFixed(2)}</span></div>
-          <p className="text-xs text-muted-foreground">{o.profiles?.display_name || o.profiles?.username} • {new Date(o.created_at).toLocaleString("th-TH")}</p>
+          <p className="text-xs text-muted-foreground">{o.profiles?.display_name || o.profiles?.username} • {new Date(o.created_at).toLocaleString("th-TH")}{o.discount_code ? ` • โค้ด ${o.discount_code} (-฿${Number(o.discount_amount).toFixed(2)})` : ""}</p>
           {o.delivered_key && <p className="text-xs mt-1">Key: <code>{o.delivered_key}</code></p>}
           {o.delivered_link && <p className="text-xs">Link: <code>{o.delivered_link}</code></p>}
         </Card>
