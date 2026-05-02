@@ -37,13 +37,18 @@ export const ProductCard = ({ product }: { product: Product }) => {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
 
-  const loadStock = () => {
-    setStock(product.stock || 0);
-  };
+  const loadStock = async () => {
+    // ดึงค่า stock โดยตรงจากตาราง products
+    const { data, error } = await supabase
+      .from("products")
+      .select("stock")
+      .eq("id", product.id)
+      .single();
 
-  useEffect(() => {
-    loadStock();
-  }, [product.id, product.stock]);
+    if (data && !error) {
+      setStock(data.stock || 0);
+    }
+  };
 
   const finalPrice = product.discount_price ?? product.price;
   const hasDiscount = product.discount_price != null && product.discount_price < product.price;
