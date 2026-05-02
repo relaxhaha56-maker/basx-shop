@@ -65,11 +65,52 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          product_id: string | null
+          uses_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          product_id?: string | null
+          uses_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          product_id?: string | null
+          uses_count?: number
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string
           delivered_key: string | null
           delivered_link: string | null
+          discount_amount: number
+          discount_code: string | null
           id: string
           price_paid: number
           product_id: string
@@ -80,6 +121,8 @@ export type Database = {
           created_at?: string
           delivered_key?: string | null
           delivered_link?: string | null
+          discount_amount?: number
+          discount_code?: string | null
           id?: string
           price_paid: number
           product_id: string
@@ -90,6 +133,8 @@ export type Database = {
           created_at?: string
           delivered_key?: string | null
           delivered_link?: string | null
+          discount_amount?: number
+          discount_code?: string | null
           id?: string
           price_paid?: number
           product_id?: string
@@ -226,6 +271,9 @@ export type Database = {
           bank_name: string
           banner_text: string
           discord_url: string
+          easyslip_enabled: boolean
+          expected_account_name: string
+          expected_account_number: string
           id: number
           particle_count: number
           particle_enabled: boolean
@@ -233,6 +281,8 @@ export type Database = {
           particle_type: string
           primary_hue: number
           shop_name: string
+          truemoney_enabled: boolean
+          truemoney_phone: string
         }
         Insert: {
           accent_hue?: number
@@ -241,6 +291,9 @@ export type Database = {
           bank_name?: string
           banner_text?: string
           discord_url?: string
+          easyslip_enabled?: boolean
+          expected_account_name?: string
+          expected_account_number?: string
           id?: number
           particle_count?: number
           particle_enabled?: boolean
@@ -248,6 +301,8 @@ export type Database = {
           particle_type?: string
           primary_hue?: number
           shop_name?: string
+          truemoney_enabled?: boolean
+          truemoney_phone?: string
         }
         Update: {
           accent_hue?: number
@@ -256,6 +311,9 @@ export type Database = {
           bank_name?: string
           banner_text?: string
           discord_url?: string
+          easyslip_enabled?: boolean
+          expected_account_name?: string
+          expected_account_number?: string
           id?: number
           particle_count?: number
           particle_enabled?: boolean
@@ -263,36 +321,53 @@ export type Database = {
           particle_type?: string
           primary_hue?: number
           shop_name?: string
+          truemoney_enabled?: boolean
+          truemoney_phone?: string
         }
         Relationships: []
       }
       topup_requests: {
         Row: {
           amount: number
+          auto_verified: boolean
           created_at: string
           id: string
           reviewed_at: string | null
           slip_note: string | null
+          slip_url: string | null
           status: string
+          topup_type: string
           user_id: string
+          verification_data: Json | null
+          voucher_url: string | null
         }
         Insert: {
           amount: number
+          auto_verified?: boolean
           created_at?: string
           id?: string
           reviewed_at?: string | null
           slip_note?: string | null
+          slip_url?: string | null
           status?: string
+          topup_type?: string
           user_id: string
+          verification_data?: Json | null
+          voucher_url?: string | null
         }
         Update: {
           amount?: number
+          auto_verified?: boolean
           created_at?: string
           id?: string
           reviewed_at?: string | null
           slip_note?: string | null
+          slip_url?: string | null
           status?: string
+          topup_type?: string
           user_id?: string
+          verification_data?: Json | null
+          voucher_url?: string | null
         }
         Relationships: []
       }
@@ -323,6 +398,15 @@ export type Database = {
     }
     Functions: {
       approve_topup: { Args: { _topup_id: string }; Returns: undefined }
+      credit_wallet: {
+        Args: {
+          _amount: number
+          _topup_id: string
+          _user_id: string
+          _verification: Json
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -330,7 +414,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      purchase_product: { Args: { _product_id: string }; Returns: string }
+      purchase_product:
+        | { Args: { _product_id: string }; Returns: string }
+        | { Args: { _code?: string; _product_id: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "user"
