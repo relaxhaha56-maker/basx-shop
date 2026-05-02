@@ -11,10 +11,9 @@ import { toast } from "sonner";
 import { Lock, User as UserIcon } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 
-// Map a username to an internal email (users never see/enter email)
 const usernameToEmail = (u: string) => `${u.trim().toLowerCase()}@basx.local`;
 
-const schema = z.object({
+const baseSchema = z.object({
   username: z.string().trim()
     .min(3, "Username อย่างน้อย 3 ตัวอักษร")
     .max(24, "Username ไม่เกิน 24 ตัวอักษร")
@@ -45,6 +44,7 @@ const Auth = () => {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const submittingRef = useRef(false);
   const nav = useNavigate();
@@ -57,9 +57,13 @@ const Auth = () => {
     e.preventDefault();
     if (submittingRef.current) return;
 
-    const parsed = schema.safeParse({ username, password });
+    const parsed = baseSchema.safeParse({ username, password });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    if (mode === "register" && password !== confirmPassword) {
+      toast.error("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
       return;
     }
     const rl = checkRateLimit();
@@ -89,7 +93,13 @@ const Auth = () => {
         toast.success("สมัครสมาชิกสำเร็จ!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password: parsed.data.password });
-        if (error) throw new Error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+        if (error) {
+          // Detect "user not found" vs "wrong password"
+          if (/invalid login|invalid credentials|user not found|no user/i.test(error.message)) {
+            throw new Error("ล็อกอินไม่สำเร็จ กรุณาสมัครก่อน หรือตรวจสอบรหัสผ่าน");
+          }
+          throw new Error("ล็อกอินไม่สำเร็จ กรุณาสมัครก่อน");
+        }
         toast.success("เข้าสู่ระบบสำเร็จ");
       }
       nav("/");
@@ -145,11 +155,30 @@ const Auth = () => {
               />
             </div>
           </div>
+          {mode === "register" && (
+            <div className="space-y-2">
+              <Label>Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  className="pl-9"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="x"
+                  required
+                  minLength={6}
+                  maxLength={72}
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+          )}
           <Button type="submit" disabled={loading} className="w-full gradient-primary text-primary-foreground font-semibold shadow-glow">
             {loading ? "กำลังโหลด..." : mode === "login" ? "เข้าสู่ระบบ" : "สมัครสมาชิก"}
           </Button>
         </form>
-        <button onClick={() => setMode(mode === "login" ? "register" : "login")} className="block mx-auto mt-4 text-sm text-primary hover:underline">
+        <button onClick={() => { setMode(mode === "login" ? "register" : "login"); setConfirmPassword(""); }} className="block mx-auto mt-4 text-sm text-primary hover:underline">
           {mode === "login" ? "ยังไม่มีบัญชี? สมัครเลย!" : "มีบัญชีแล้ว? เข้าสู่ระบบ"}
         </button>
         <p className="mt-6 text-xs text-center text-muted-foreground">
