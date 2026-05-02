@@ -37,15 +37,13 @@ export const ProductCard = ({ product }: { product: Product }) => {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
 
-  const loadStock = async () => {
-    const { count } = await supabase
-      .from("product_stock")
-      .select("*", { count: "exact", head: true })
-      .eq("product_id", product.id)
-      .eq("sold", false);
-    setStock(count || 0);
+  const loadStock = () => {
+    setStock(product.stock || 0);
   };
-  useEffect(() => { loadStock(); }, [product.id]);
+
+  useEffect(() => {
+    loadStock();
+  }, [product.id, product.stock]);
 
   const finalPrice = product.discount_price ?? product.price;
   const hasDiscount = product.discount_price != null && product.discount_price < product.price;
