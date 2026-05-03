@@ -34,6 +34,7 @@ const Admin = () => {
           <TabsTrigger value="announcements">ประกาศ</TabsTrigger>
           <TabsTrigger value="topups">เติมเงิน</TabsTrigger>
           <TabsTrigger value="orders">คำสั่งซื้อ</TabsTrigger>
+          <TabsTrigger value="users">ผู้ใช้ & Wallet</TabsTrigger>
         </TabsList>
         <TabsContent value="settings"><SettingsTab /></TabsContent>
         <TabsContent value="payment"><PaymentTab /></TabsContent>
