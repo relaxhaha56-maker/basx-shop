@@ -397,6 +397,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_wallet: {
+        Args: { _amount: number; _note?: string; _user_id: string }
+        Returns: undefined
+      }
       approve_topup: { Args: { _topup_id: string }; Returns: undefined }
       credit_wallet: {
         Args: {
