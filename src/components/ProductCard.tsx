@@ -38,12 +38,8 @@ export const ProductCard = ({ product }: { product: Product }) => {
   const [code, setCode] = useState("");
 
   const loadStock = async () => {
-    const { count } = await supabase
-      .from("product_stock")
-      .select("id", { count: "exact", head: true })
-      .eq("product_id", product.id)
-      .eq("sold", false);
-    setStock(count || 0);
+    const { data } = await supabase.rpc("product_stock_count", { _product_id: product.id });
+    setStock((data as number) || 0);
   };
 
   useEffect(() => {
