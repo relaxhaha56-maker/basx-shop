@@ -15,10 +15,20 @@ const Shop = () => {
     supabase.from("categories").select("*").order("sort_order").then(({ data }) => setCats((data as any) || []));
   }, []);
 
-  useEffect(() => {
+  const loadProducts = () => {
     let q = supabase.from("products").select("*, categories(name, platform)").eq("active", true).order("created_at", { ascending: false });
     if (filter !== "all") q = q.eq("category_id", filter);
     q.then(({ data }) => setProducts((data as any) || []));
+  };
+
+  useEffect(() => {
+    loadProducts();
+    const ch = supabase
+      .channel("products_rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => loadProducts())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   return (
