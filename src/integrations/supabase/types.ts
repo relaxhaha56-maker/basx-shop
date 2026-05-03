@@ -414,6 +414,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      product_stock_count: { Args: { _product_id: string }; Returns: number }
       purchase_product:
         | { Args: { _product_id: string }; Returns: string }
         | { Args: { _code?: string; _product_id: string }; Returns: string }
