@@ -568,6 +568,72 @@ const OrdersTab = () => {
   );
 };
 
+const UsersTab = () => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [q, setQ] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [amounts, setAmounts] = useState<Record<string, string>>({});
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  const load = async () => {
+    const { data } = await supabase.from("profiles")
+      .select("id, username, display_name, wallet_balance, created_at")
+      .order("created_at", { ascending: false }).limit(200);
+    setUsers((data as any) || []);
+  };
+  useEffect(() => { load(); }, []);
+
+  const adjust = async (uid: string, sign: 1 | -1) => {
+    const raw = parseFloat(amounts[uid] || "0");
+    if (!raw || raw <= 0) return toast.error("กรอกจำนวนเงิน");
+    setBusy(uid);
+    const { error } = await supabase.rpc("admin_adjust_wallet", {
+      _user_id: uid, _amount: sign * raw, _note: notes[uid] || null,
+    });
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success(sign > 0 ? `เติม ฿${raw} สำเร็จ` : `หัก ฿${raw} สำเร็จ`);
+    setAmounts(a => ({ ...a, [uid]: "" }));
+    setNotes(n => ({ ...n, [uid]: "" }));
+    load();
+  };
+
+  const filtered = users.filter(u =>
+    !q || (u.username || "").toLowerCase().includes(q.toLowerCase()) ||
+    (u.display_name || "").toLowerCase().includes(q.toLowerCase()) ||
+    u.id.includes(q)
+  );
+
+  return (
+    <div className="space-y-3">
+      <Input placeholder="ค้นหา username / display name / user id" value={q} onChange={e=>setQ(e.target.value)} className="max-w-md"/>
+      {filtered.map(u => (
+        <Card key={u.id} className="p-4 gradient-card">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div>
+              <p className="font-semibold">{u.display_name || u.username || u.id.slice(0,8)}</p>
+              <p className="text-xs text-muted-foreground">@{u.username} • {u.id.slice(0,8)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">Wallet</p>
+              <p className="text-xl font-black text-primary">฿{Number(u.wallet_balance).toFixed(2)}</p>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-[140px,1fr,auto,auto] gap-2 items-center">
+            <Input type="number" min="0" step="0.01" placeholder="จำนวน ฿"
+              value={amounts[u.id] || ""} onChange={e=>setAmounts(a=>({...a, [u.id]: e.target.value}))}/>
+            <Input placeholder="หมายเหตุ (ไม่บังคับ)"
+              value={notes[u.id] || ""} onChange={e=>setNotes(n=>({...n, [u.id]: e.target.value}))}/>
+            <Button size="sm" disabled={busy===u.id} onClick={()=>adjust(u.id, 1)} className="gradient-primary text-primary-foreground">+ เติม</Button>
+            <Button size="sm" variant="outline" disabled={busy===u.id} onClick={()=>adjust(u.id, -1)}>– หัก</Button>
+          </div>
+        </Card>
+      ))}
+      {filtered.length === 0 && <p className="text-sm text-muted-foreground">ไม่พบผู้ใช้</p>}
+    </div>
+  );
+};
+
 const Field = ({label, children}: {label:string; children:React.ReactNode}) => (
   <div className="space-y-2"><Label>{label}</Label>{children}</div>
 );
