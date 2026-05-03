@@ -1,0 +1,1 @@
+CREATE POLICY "stock public read" ON public.product_stock FOR SELECT USING (true);
