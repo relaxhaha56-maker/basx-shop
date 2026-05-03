@@ -38,17 +38,23 @@ export const ProductCard = ({ product }: { product: Product }) => {
   const [code, setCode] = useState("");
 
   const loadStock = async () => {
-    // ดึงค่า stock โดยตรงจากตาราง products
-    const { data, error } = await supabase
-      .from("products")
-      .select("stock")
-      .eq("id", product.id)
-      .single();
-
-    if (data && !error) {
-      setStock(data.stock || 0);
-    }
+    const { count } = await supabase
+      .from("product_stock")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", product.id)
+      .eq("sold", false);
+    setStock(count || 0);
   };
+
+  useEffect(() => {
+    loadStock();
+    const ch = supabase
+      .channel(`stock_${product.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "product_stock", filter: `product_id=eq.${product.id}` }, () => loadStock())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id]);
 
   const finalPrice = product.discount_price ?? product.price;
   const hasDiscount = product.discount_price != null && product.discount_price < product.price;
