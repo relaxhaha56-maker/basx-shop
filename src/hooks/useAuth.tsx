@@ -37,6 +37,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Realtime: keep wallet balance in sync across the app
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase
+      .channel(`profile_${user.id}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` },
+        (p) => setProfile((prev) => prev ? { ...prev, ...(p.new as any) } : (p.new as any)))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user]);
+
   const refreshProfile = async () => { if (user) await loadExtras(user.id); };
   const signOut = async () => { await supabase.auth.signOut(); };
 
