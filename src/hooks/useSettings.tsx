@@ -51,7 +51,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     return () => { supabase.removeChannel(ch); };
   }, []);
 
-  // Apply theme hue live
+  // Apply theme hue + customization live
   useEffect(() => {
     if (!settings) return;
     const root = document.documentElement;
@@ -59,6 +59,18 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     root.style.setProperty("--primary-glow", `${settings.accent_hue} 100% 65%`);
     root.style.setProperty("--accent", `${settings.primary_hue} 100% 55%`);
     root.style.setProperty("--ring", `${settings.primary_hue} 100% 55%`);
+    root.style.setProperty("--background", `${settings.background_hue ?? 222} 30% 6%`);
+    root.style.setProperty("--card", `${settings.background_hue ?? 222} 28% 9%`);
+    root.style.setProperty("--secondary", `${settings.background_hue ?? 222} 25% 14%`);
+    const glow = settings.glow_intensity ?? 1;
+    root.style.setProperty("--shadow-glow", `0 0 ${30 * glow}px hsl(var(--primary) / ${0.45 * glow})`);
+    root.style.setProperty("--radius", `${(settings.button_radius ?? 8) / 16}rem`);
+    const angle = settings.gradient_style === "horizontal" ? "90deg"
+      : settings.gradient_style === "vertical" ? "180deg"
+      : settings.gradient_style === "radial" ? null : "135deg";
+    root.style.setProperty("--gradient-primary",
+      angle ? `linear-gradient(${angle}, hsl(var(--primary)), hsl(var(--primary-glow)))`
+            : `radial-gradient(circle, hsl(var(--primary)), hsl(var(--primary-glow)))`);
   }, [settings]);
 
   return <SettingsContext.Provider value={settings}>{children}</SettingsContext.Provider>;
