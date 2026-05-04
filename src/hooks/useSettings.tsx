@@ -20,6 +20,15 @@ export type SiteSettings = {
   truemoney_phone: string;
   expected_account_name: string;
   expected_account_number: string;
+  hero_title: string;
+  hero_subtitle: string;
+  footer_text: string;
+  glow_intensity: number;
+  button_radius: number;
+  background_hue: number;
+  gradient_style: string;
+  show_announcement_bar: boolean;
+  announcement_bar_text: string;
 };
 
 const SettingsContext = createContext<SiteSettings | null>(null);
