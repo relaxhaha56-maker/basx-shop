@@ -62,8 +62,18 @@ const SettingsTab = () => {
   return (
     <Card className="p-6 gradient-card space-y-4 max-w-2xl">
       <Field label="ชื่อร้าน"><Input value={s.shop_name} onChange={e=>setS({...s, shop_name:e.target.value})} /></Field>
-      <Field label="ข้อความ Banner"><Input value={s.banner_text} onChange={e=>setS({...s, banner_text:e.target.value})} /></Field>
+      <Field label="หัวข้อ Hero (หน้าแรก)"><Input value={s.hero_title||""} onChange={e=>setS({...s, hero_title:e.target.value})} /></Field>
+      <Field label="ข้อความรอง Hero"><Textarea value={s.hero_subtitle||""} onChange={e=>setS({...s, hero_subtitle:e.target.value})} /></Field>
+      <Field label="ข้อความ Banner (เก่า)"><Input value={s.banner_text} onChange={e=>setS({...s, banner_text:e.target.value})} /></Field>
       <Field label="Discord URL"><Input value={s.discord_url} onChange={e=>setS({...s, discord_url:e.target.value})} /></Field>
+      <Field label="Footer"><Input value={s.footer_text||""} onChange={e=>setS({...s, footer_text:e.target.value})} /></Field>
+      <div className="border-t border-border pt-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <Label>แสดงแถบประกาศด้านบนสุด</Label>
+          <Switch checked={!!s.show_announcement_bar} onCheckedChange={v=>setS({...s, show_announcement_bar:v})}/>
+        </div>
+        <Field label="ข้อความแถบประกาศ"><Input value={s.announcement_bar_text||""} onChange={e=>setS({...s, announcement_bar_text:e.target.value})} /></Field>
+      </div>
       <Button onClick={save} className="gradient-primary text-primary-foreground">บันทึก</Button>
     </Card>
   );
