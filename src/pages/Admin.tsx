@@ -140,6 +140,27 @@ const AppearanceTab = () => {
         <Slider value={[s.accent_hue]} min={0} max={360} step={1} onValueChange={v=>setS({...s, accent_hue:v[0]})} />
         <div className="h-3 mt-2 rounded" style={{background:`hsl(${s.accent_hue} 100% 65%)`}} />
       </Field>
+      <Field label={`สีพื้นหลัง (Hue: ${s.background_hue ?? 222})`}>
+        <Slider value={[s.background_hue ?? 222]} min={0} max={360} step={1} onValueChange={v=>setS({...s, background_hue:v[0]})} />
+        <div className="h-3 mt-2 rounded" style={{background:`hsl(${s.background_hue ?? 222} 30% 6%)`}} />
+      </Field>
+      <Field label={`ความเข้มแสงเรืองรอง: ${Number(s.glow_intensity ?? 1).toFixed(1)}x`}>
+        <Slider value={[Number(s.glow_intensity ?? 1)]} min={0} max={3} step={0.1} onValueChange={v=>setS({...s, glow_intensity:v[0]})} />
+      </Field>
+      <Field label={`ความโค้งปุ่ม: ${s.button_radius ?? 8}px`}>
+        <Slider value={[s.button_radius ?? 8]} min={0} max={32} step={1} onValueChange={v=>setS({...s, button_radius:v[0]})} />
+      </Field>
+      <Field label="สไตล์ไล่สี (Gradient)">
+        <Select value={s.gradient_style ?? "diagonal"} onValueChange={v=>setS({...s, gradient_style:v})}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="diagonal">เฉียง</SelectItem>
+            <SelectItem value="horizontal">แนวนอน</SelectItem>
+            <SelectItem value="vertical">แนวตั้ง</SelectItem>
+            <SelectItem value="radial">รัศมี</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
 
       <div className="border-t border-border pt-4 space-y-4">
         <div className="flex items-center justify-between">
