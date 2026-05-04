@@ -35,8 +35,8 @@ const Index = () => {
         <Card className="lg:col-span-2 p-8 sm:p-12 gradient-card border-glow relative overflow-hidden animate-glow-pulse">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
           <p className="text-sm uppercase tracking-[0.3em] text-primary text-glow mb-3">Premium Gaming Shop</p>
-          <h1 className="font-display text-4xl sm:text-6xl font-black mb-4">{settings?.shop_name ?? "BasX SHOP"}</h1>
-          <p className="text-lg text-muted-foreground mb-6 max-w-xl">{settings?.banner_text ?? "ยินดีต้อนรับ"}</p>
+          <h1 className="font-display text-4xl sm:text-6xl font-black mb-4">{settings?.hero_title ?? settings?.shop_name ?? "BasX SHOP"}</h1>
+          <p className="text-lg text-muted-foreground mb-6 max-w-xl">{settings?.hero_subtitle ?? settings?.banner_text ?? "ยินดีต้อนรับ"}</p>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg" className="gradient-primary text-primary-foreground font-semibold shadow-glow">
               <Link to="/shop">เริ่มช้อปเลย</Link>
