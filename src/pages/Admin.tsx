@@ -62,8 +62,18 @@ const SettingsTab = () => {
   return (
     <Card className="p-6 gradient-card space-y-4 max-w-2xl">
       <Field label="ชื่อร้าน"><Input value={s.shop_name} onChange={e=>setS({...s, shop_name:e.target.value})} /></Field>
-      <Field label="ข้อความ Banner"><Input value={s.banner_text} onChange={e=>setS({...s, banner_text:e.target.value})} /></Field>
+      <Field label="หัวข้อ Hero (หน้าแรก)"><Input value={s.hero_title||""} onChange={e=>setS({...s, hero_title:e.target.value})} /></Field>
+      <Field label="ข้อความรอง Hero"><Textarea value={s.hero_subtitle||""} onChange={e=>setS({...s, hero_subtitle:e.target.value})} /></Field>
+      <Field label="ข้อความ Banner (เก่า)"><Input value={s.banner_text} onChange={e=>setS({...s, banner_text:e.target.value})} /></Field>
       <Field label="Discord URL"><Input value={s.discord_url} onChange={e=>setS({...s, discord_url:e.target.value})} /></Field>
+      <Field label="Footer"><Input value={s.footer_text||""} onChange={e=>setS({...s, footer_text:e.target.value})} /></Field>
+      <div className="border-t border-border pt-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <Label>แสดงแถบประกาศด้านบนสุด</Label>
+          <Switch checked={!!s.show_announcement_bar} onCheckedChange={v=>setS({...s, show_announcement_bar:v})}/>
+        </div>
+        <Field label="ข้อความแถบประกาศ"><Input value={s.announcement_bar_text||""} onChange={e=>setS({...s, announcement_bar_text:e.target.value})} /></Field>
+      </div>
       <Button onClick={save} className="gradient-primary text-primary-foreground">บันทึก</Button>
     </Card>
   );
@@ -129,6 +139,27 @@ const AppearanceTab = () => {
       <Field label={`สี Glow รอง (Hue: ${s.accent_hue})`}>
         <Slider value={[s.accent_hue]} min={0} max={360} step={1} onValueChange={v=>setS({...s, accent_hue:v[0]})} />
         <div className="h-3 mt-2 rounded" style={{background:`hsl(${s.accent_hue} 100% 65%)`}} />
+      </Field>
+      <Field label={`สีพื้นหลัง (Hue: ${s.background_hue ?? 222})`}>
+        <Slider value={[s.background_hue ?? 222]} min={0} max={360} step={1} onValueChange={v=>setS({...s, background_hue:v[0]})} />
+        <div className="h-3 mt-2 rounded" style={{background:`hsl(${s.background_hue ?? 222} 30% 6%)`}} />
+      </Field>
+      <Field label={`ความเข้มแสงเรืองรอง: ${Number(s.glow_intensity ?? 1).toFixed(1)}x`}>
+        <Slider value={[Number(s.glow_intensity ?? 1)]} min={0} max={3} step={0.1} onValueChange={v=>setS({...s, glow_intensity:v[0]})} />
+      </Field>
+      <Field label={`ความโค้งปุ่ม: ${s.button_radius ?? 8}px`}>
+        <Slider value={[s.button_radius ?? 8]} min={0} max={32} step={1} onValueChange={v=>setS({...s, button_radius:v[0]})} />
+      </Field>
+      <Field label="สไตล์ไล่สี (Gradient)">
+        <Select value={s.gradient_style ?? "diagonal"} onValueChange={v=>setS({...s, gradient_style:v})}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="diagonal">เฉียง</SelectItem>
+            <SelectItem value="horizontal">แนวนอน</SelectItem>
+            <SelectItem value="vertical">แนวตั้ง</SelectItem>
+            <SelectItem value="radial">รัศมี</SelectItem>
+          </SelectContent>
+        </Select>
       </Field>
 
       <div className="border-t border-border pt-4 space-y-4">

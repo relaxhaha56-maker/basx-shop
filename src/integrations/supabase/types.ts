@@ -266,14 +266,22 @@ export type Database = {
       site_settings: {
         Row: {
           accent_hue: number
+          announcement_bar_text: string
+          background_hue: number
           bank_account_name: string
           bank_account_number: string
           bank_name: string
           banner_text: string
+          button_radius: number
           discord_url: string
           easyslip_enabled: boolean
           expected_account_name: string
           expected_account_number: string
+          footer_text: string
+          glow_intensity: number
+          gradient_style: string
+          hero_subtitle: string
+          hero_title: string
           id: number
           particle_count: number
           particle_enabled: boolean
@@ -281,19 +289,28 @@ export type Database = {
           particle_type: string
           primary_hue: number
           shop_name: string
+          show_announcement_bar: boolean
           truemoney_enabled: boolean
           truemoney_phone: string
         }
         Insert: {
           accent_hue?: number
+          announcement_bar_text?: string
+          background_hue?: number
           bank_account_name?: string
           bank_account_number?: string
           bank_name?: string
           banner_text?: string
+          button_radius?: number
           discord_url?: string
           easyslip_enabled?: boolean
           expected_account_name?: string
           expected_account_number?: string
+          footer_text?: string
+          glow_intensity?: number
+          gradient_style?: string
+          hero_subtitle?: string
+          hero_title?: string
           id?: number
           particle_count?: number
           particle_enabled?: boolean
@@ -301,19 +318,28 @@ export type Database = {
           particle_type?: string
           primary_hue?: number
           shop_name?: string
+          show_announcement_bar?: boolean
           truemoney_enabled?: boolean
           truemoney_phone?: string
         }
         Update: {
           accent_hue?: number
+          announcement_bar_text?: string
+          background_hue?: number
           bank_account_name?: string
           bank_account_number?: string
           bank_name?: string
           banner_text?: string
+          button_radius?: number
           discord_url?: string
           easyslip_enabled?: boolean
           expected_account_name?: string
           expected_account_number?: string
+          footer_text?: string
+          glow_intensity?: number
+          gradient_style?: string
+          hero_subtitle?: string
+          hero_title?: string
           id?: number
           particle_count?: number
           particle_enabled?: boolean
@@ -321,6 +347,7 @@ export type Database = {
           particle_type?: string
           primary_hue?: number
           shop_name?: string
+          show_announcement_bar?: boolean
           truemoney_enabled?: boolean
           truemoney_phone?: string
         }
@@ -419,9 +446,10 @@ export type Database = {
         Returns: boolean
       }
       product_stock_count: { Args: { _product_id: string }; Returns: number }
-      purchase_product:
-        | { Args: { _product_id: string }; Returns: string }
-        | { Args: { _code?: string; _product_id: string }; Returns: string }
+      purchase_product: {
+        Args: { _code?: string; _product_id: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "user"
