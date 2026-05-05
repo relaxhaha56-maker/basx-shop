@@ -163,6 +163,76 @@ const AppearanceTab = () => {
       </Field>
 
       <div className="border-t border-border pt-4 space-y-4">
+        <h3 className="font-bold text-primary">🎨 ฟอนต์ & โลโก้</h3>
+        <Field label="ฟอนต์หัวข้อ">
+          <Select value={s.font_heading || "Orbitron"} onValueChange={v=>setS({...s, font_heading:v})}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {["Orbitron","Audiowide","Press_Start_2P","Chakra_Petch","Rajdhani","Kanit","Prompt","Mitr","Bai_Jamjuree","Sarabun","Inter"].map(f=>
+                <SelectItem key={f} value={f}>{f.replace(/_/g," ")}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="ฟอนต์เนื้อหา">
+          <Select value={s.font_body || "Kanit"} onValueChange={v=>setS({...s, font_body:v})}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {["Kanit","Prompt","Sarabun","Mitr","Bai_Jamjuree","Chakra_Petch","Rajdhani","Inter"].map(f=>
+                <SelectItem key={f} value={f}>{f.replace(/_/g," ")}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label="โลโก้ร้าน">
+          <ImageUpload value={s.logo_url||""} onChange={url=>setS({...s, logo_url:url})} />
+        </Field>
+        <Field label="พื้นหลัง Hero (รูปใหญ่)">
+          <ImageUpload value={s.hero_bg_url||""} onChange={url=>setS({...s, hero_bg_url:url})} />
+        </Field>
+        <Field label={`ความเข้ม Overlay บน Hero: ${Number(s.hero_overlay_opacity ?? 0.6).toFixed(2)}`}>
+          <Slider value={[Number(s.hero_overlay_opacity ?? 0.6)]} min={0} max={1} step={0.05} onValueChange={v=>setS({...s, hero_overlay_opacity:v[0]})} />
+        </Field>
+      </div>
+
+      <div className="border-t border-border pt-4 space-y-4">
+        <h3 className="font-bold text-primary">🃏 สไตล์การ์ด & เอฟเฟกต์ฉาก</h3>
+        <Field label="สไตล์การ์ดสินค้า">
+          <Select value={s.card_style || "classic"} onValueChange={v=>setS({...s, card_style:v})}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="classic">Classic (ไล่สี)</SelectItem>
+              <SelectItem value="glass">Glass (กระจกฝ้า)</SelectItem>
+              <SelectItem value="neon">Neon (กรอบเรืองแสง)</SelectItem>
+              <SelectItem value="minimal">Minimal (เรียบ)</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label={`เบลอเพิ่ม (Glass): ${s.card_blur ?? 0}px`}>
+          <Slider value={[s.card_blur ?? 0]} min={0} max={30} step={1} onValueChange={v=>setS({...s, card_blur:v[0]})} />
+        </Field>
+        <div className="flex items-center justify-between"><Label>Noise Texture (เม็ดเกรน)</Label>
+          <Switch checked={!!s.noise_texture} onCheckedChange={v=>setS({...s, noise_texture:v})}/></div>
+        <div className="flex items-center justify-between"><Label>Cursor Glow (แสงตามเมาส์)</Label>
+          <Switch checked={!!s.cursor_glow} onCheckedChange={v=>setS({...s, cursor_glow:v})}/></div>
+        <div className="flex items-center justify-between"><Label>Scanline (เส้น CRT เรโทร)</Label>
+          <Switch checked={!!s.scanline_effect} onCheckedChange={v=>setS({...s, scanline_effect:v})}/></div>
+        <Field label="แอนิเมชันเปลี่ยนหน้า">
+          <Select value={s.page_transition || "fade"} onValueChange={v=>setS({...s, page_transition:v})}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fade">Fade</SelectItem>
+              <SelectItem value="slide">Slide</SelectItem>
+              <SelectItem value="zoom">Zoom</SelectItem>
+              <SelectItem value="none">ไม่มี</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Field label={`ความเร็วแอนิเมชัน: ${Number(s.animation_speed ?? 1).toFixed(1)}x`}>
+          <Slider value={[Number(s.animation_speed ?? 1)]} min={0.3} max={3} step={0.1} onValueChange={v=>setS({...s, animation_speed:v[0]})} />
+        </Field>
+      </div>
+
+      <div className="border-t border-border pt-4 space-y-4">
+        <h3 className="font-bold text-primary">✨ อนุภาคพื้นหลัง</h3>
         <div className="flex items-center justify-between">
           <Label>เปิดเอฟเฟกต์อนุภาค</Label>
           <Switch checked={s.particle_enabled} onCheckedChange={v=>setS({...s, particle_enabled:v})} />
@@ -185,7 +255,14 @@ const AppearanceTab = () => {
           <Slider value={[Number(s.particle_speed)]} min={0.1} max={5} step={0.1} onValueChange={v=>setS({...s, particle_speed:v[0]})} />
         </Field>
       </div>
-      <Button onClick={save} className="gradient-primary text-primary-foreground">บันทึก</Button>
+
+      <div className="border-t border-border pt-4 space-y-2">
+        <h3 className="font-bold text-primary">🧪 Custom CSS (ขั้นสูง)</h3>
+        <p className="text-xs text-muted-foreground">เขียน CSS เพิ่มเองได้ จะ inject เข้าเว็บทันที — ใช้ระวังนะ</p>
+        <Textarea rows={6} className="font-mono text-xs" value={s.custom_css || ""} onChange={e=>setS({...s, custom_css:e.target.value})} placeholder=".gradient-card { transform: rotate(0deg); }" />
+      </div>
+
+      <Button onClick={save} className="gradient-primary text-primary-foreground w-full">บันทึกทั้งหมด</Button>
     </Card>
   );
 };
