@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip: string | null
+          target_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip?: string | null
+          target_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip?: string | null
+          target_id?: string | null
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           active: boolean
@@ -260,6 +290,27 @@ export type Database = {
           updated_at?: string
           username?: string | null
           wallet_balance?: number
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
