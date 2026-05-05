@@ -32,18 +32,27 @@ const Index = () => {
     <div className="container py-8 sm:py-12 space-y-12">
       {/* Hero */}
       <section className="grid lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-8 sm:p-12 gradient-card border-glow relative overflow-hidden animate-glow-pulse">
+        <Card
+          className={`lg:col-span-2 p-8 sm:p-12 gradient-card border-glow relative overflow-hidden animate-glow-pulse ${settings?.hero_bg_url ? "hero-bg" : ""}`}
+          style={settings?.hero_bg_url ? {
+            backgroundImage: `url(${settings.hero_bg_url})`,
+            ['--hero-overlay' as any]: settings.hero_overlay_opacity ?? 0.6,
+          } : undefined}
+        >
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-          <p className="text-sm uppercase tracking-[0.3em] text-primary text-glow mb-3">Premium Gaming Shop</p>
-          <h1 className="font-display text-4xl sm:text-6xl font-black mb-4">{settings?.hero_title ?? settings?.shop_name ?? "BasX SHOP"}</h1>
-          <p className="text-lg text-muted-foreground mb-6 max-w-xl">{settings?.hero_subtitle ?? settings?.banner_text ?? "ยินดีต้อนรับ"}</p>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg" className="gradient-primary text-primary-foreground font-semibold shadow-glow">
-              <Link to="/shop">เริ่มช้อปเลย</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10">
-              <Link to="/topup">เติมเงิน</Link>
-            </Button>
+          <div className="relative z-[1]">
+            {settings?.logo_url && <img src={settings.logo_url} alt="logo" className="h-12 mb-3" />}
+            <p className="text-sm uppercase tracking-[0.3em] text-primary text-glow mb-3">Premium Gaming Shop</p>
+            <h1 className="font-display text-4xl sm:text-6xl font-black mb-4">{settings?.hero_title ?? settings?.shop_name ?? "BasX SHOP"}</h1>
+            <p className="text-lg text-muted-foreground mb-6 max-w-xl">{settings?.hero_subtitle ?? settings?.banner_text ?? "ยินดีต้อนรับ"}</p>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild size="lg" className="gradient-primary text-primary-foreground font-semibold shadow-glow">
+                <Link to="/shop">เริ่มช้อปเลย</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-primary/40 text-primary hover:bg-primary/10">
+                <Link to="/topup">เติมเงิน</Link>
+              </Button>
+            </div>
           </div>
         </Card>
         <Card className="p-6 gradient-card border-border">

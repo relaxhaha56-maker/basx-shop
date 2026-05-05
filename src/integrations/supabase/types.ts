@@ -317,6 +317,7 @@ export type Database = {
       site_settings: {
         Row: {
           accent_hue: number
+          animation_speed: number
           announcement_bar_text: string
           background_hue: number
           bank_account_name: string
@@ -324,21 +325,33 @@ export type Database = {
           bank_name: string
           banner_text: string
           button_radius: number
+          card_blur: number
+          card_style: string
+          cursor_glow: boolean
+          custom_css: string
           discord_url: string
           easyslip_enabled: boolean
           expected_account_name: string
           expected_account_number: string
+          font_body: string
+          font_heading: string
           footer_text: string
           glow_intensity: number
           gradient_style: string
+          hero_bg_url: string
+          hero_overlay_opacity: number
           hero_subtitle: string
           hero_title: string
           id: number
+          logo_url: string
+          noise_texture: boolean
+          page_transition: string
           particle_count: number
           particle_enabled: boolean
           particle_speed: number
           particle_type: string
           primary_hue: number
+          scanline_effect: boolean
           shop_name: string
           show_announcement_bar: boolean
           truemoney_enabled: boolean
@@ -346,6 +359,7 @@ export type Database = {
         }
         Insert: {
           accent_hue?: number
+          animation_speed?: number
           announcement_bar_text?: string
           background_hue?: number
           bank_account_name?: string
@@ -353,21 +367,33 @@ export type Database = {
           bank_name?: string
           banner_text?: string
           button_radius?: number
+          card_blur?: number
+          card_style?: string
+          cursor_glow?: boolean
+          custom_css?: string
           discord_url?: string
           easyslip_enabled?: boolean
           expected_account_name?: string
           expected_account_number?: string
+          font_body?: string
+          font_heading?: string
           footer_text?: string
           glow_intensity?: number
           gradient_style?: string
+          hero_bg_url?: string
+          hero_overlay_opacity?: number
           hero_subtitle?: string
           hero_title?: string
           id?: number
+          logo_url?: string
+          noise_texture?: boolean
+          page_transition?: string
           particle_count?: number
           particle_enabled?: boolean
           particle_speed?: number
           particle_type?: string
           primary_hue?: number
+          scanline_effect?: boolean
           shop_name?: string
           show_announcement_bar?: boolean
           truemoney_enabled?: boolean
@@ -375,6 +401,7 @@ export type Database = {
         }
         Update: {
           accent_hue?: number
+          animation_speed?: number
           announcement_bar_text?: string
           background_hue?: number
           bank_account_name?: string
@@ -382,21 +409,33 @@ export type Database = {
           bank_name?: string
           banner_text?: string
           button_radius?: number
+          card_blur?: number
+          card_style?: string
+          cursor_glow?: boolean
+          custom_css?: string
           discord_url?: string
           easyslip_enabled?: boolean
           expected_account_name?: string
           expected_account_number?: string
+          font_body?: string
+          font_heading?: string
           footer_text?: string
           glow_intensity?: number
           gradient_style?: string
+          hero_bg_url?: string
+          hero_overlay_opacity?: number
           hero_subtitle?: string
           hero_title?: string
           id?: number
+          logo_url?: string
+          noise_texture?: boolean
+          page_transition?: string
           particle_count?: number
           particle_enabled?: boolean
           particle_speed?: number
           particle_type?: string
           primary_hue?: number
+          scanline_effect?: boolean
           shop_name?: string
           show_announcement_bar?: boolean
           truemoney_enabled?: boolean

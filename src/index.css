@@ -48,13 +48,13 @@
   * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Kanit', sans-serif;
+    font-family: var(--font-body, 'Kanit'), sans-serif;
     background-image:
       radial-gradient(ellipse at top, hsl(200 100% 15% / 0.25), transparent 50%),
       radial-gradient(ellipse at bottom, hsl(220 80% 12% / 0.4), transparent 60%);
     background-attachment: fixed;
   }
-  h1,h2,h3,.font-display { font-family: 'Orbitron', 'Kanit', sans-serif; letter-spacing: 0.02em; }
+  h1,h2,h3,.font-display { font-family: var(--font-heading, 'Orbitron'), sans-serif; letter-spacing: 0.02em; }
 }
 
 @layer utilities {
@@ -67,3 +67,39 @@
   .hover-lift { @apply transition-all duration-300 hover:-translate-y-1; }
   .hover-glow { @apply transition-all duration-300 hover:shadow-glow hover:border-primary/60; }
 }
+
+/* === Admin-controlled UI effects === */
+body.fx-noise::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+body.fx-cursor-glow::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(280px circle at var(--cursor-x, 50%) var(--cursor-y, 50%), hsl(var(--primary) / 0.18), transparent 70%);
+  transition: background 80ms linear;
+}
+body.fx-scanline::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, hsl(0 0% 0% / 0.18) 3px, transparent 4px);
+}
+body[data-card-style="glass"] .gradient-card {
+  background: hsl(var(--card) / 0.55);
+  backdrop-filter: blur(calc(var(--card-blur, 0px) + 12px));
+  -webkit-backdrop-filter: blur(calc(var(--card-blur, 0px) + 12px));
+  border: 1px solid hsl(var(--primary) / 0.25);
+}
+body[data-card-style="neon"] .gradient-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--primary) / 0.7);
+  box-shadow: 0 0 18px hsl(var(--primary) / 0.45), inset 0 0 18px hsl(var(--primary) / 0.15);
+}
+body[data-card-style="minimal"] .gradient-card {
+  background: hsl(var(--card)); border: 1px solid hsl(var(--border)); box-shadow: none;
+}
+body[data-page-transition="slide"] main { animation: slide-in-right 0.35s ease-out; }
+body[data-page-transition="zoom"] main { animation: scale-in 0.3s ease-out; }
+body[data-page-transition="fade"] main { animation: fade-in 0.3s ease-out; }
+body[data-page-transition="none"] main { animation: none; }
+.hero-bg { background-position: center; background-size: cover; background-repeat: no-repeat; position: relative; isolation: isolate; }
+.hero-bg::after { content: ""; position: absolute; inset: 0; z-index: 0; background: hsl(var(--background) / var(--hero-overlay, 0.6)); }
