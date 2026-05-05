@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { ParticleEffect } from "./ParticleEffect";
@@ -6,6 +6,7 @@ import { useSettings } from "@/hooks/useSettings";
 
 export const Layout = () => {
   const s = useSettings();
+  const loc = useLocation();
   return (
     <div className="min-h-screen flex flex-col relative">
       <ParticleEffect />
@@ -15,7 +16,7 @@ export const Layout = () => {
         </div>
       )}
       <Header />
-      <main className="flex-1 relative z-10 animate-fade-in">
+      <main key={loc.pathname} className="flex-1 relative z-10">
         <Outlet />
       </main>
       <Footer />
