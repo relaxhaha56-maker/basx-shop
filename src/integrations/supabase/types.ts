@@ -183,18 +183,27 @@ export type Database = {
       }
       private_settings: {
         Row: {
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_name: string | null
           expected_account_name: string
           expected_account_number: string
           id: number
           truemoney_phone: string
         }
         Insert: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           expected_account_name?: string
           expected_account_number?: string
           id?: number
           truemoney_phone?: string
         }
         Update: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
           expected_account_name?: string
           expected_account_number?: string
           id?: number
@@ -341,9 +350,6 @@ export type Database = {
           animation_speed: number
           announcement_bar_text: string
           background_hue: number
-          bank_account_name: string
-          bank_account_number: string
-          bank_name: string
           banner_text: string
           button_radius: number
           card_blur: number
@@ -380,9 +386,6 @@ export type Database = {
           animation_speed?: number
           announcement_bar_text?: string
           background_hue?: number
-          bank_account_name?: string
-          bank_account_number?: string
-          bank_name?: string
           banner_text?: string
           button_radius?: number
           card_blur?: number
@@ -419,9 +422,6 @@ export type Database = {
           animation_speed?: number
           announcement_bar_text?: string
           background_hue?: number
-          bank_account_name?: string
-          bank_account_number?: string
-          bank_name?: string
           banner_text?: string
           button_radius?: number
           card_blur?: number
@@ -539,6 +539,14 @@ export type Database = {
           _verification: Json
         }
         Returns: undefined
+      }
+      get_payment_info: {
+        Args: never
+        Returns: {
+          bank_account_name: string
+          bank_account_number: string
+          bank_name: string
+        }[]
       }
       has_role: {
         Args: {
