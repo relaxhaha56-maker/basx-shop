@@ -81,11 +81,18 @@ const SettingsTab = () => {
 
 const PaymentTab = () => {
   const [s, setS] = useState<any>(null);
-  useEffect(() => { supabase.from("site_settings").select("*").eq("id",1).maybeSingle().then(({data}) => setS(data)); }, []);
-  if (!s) return <div>กำลังโหลด...</div>;
+  const [priv, setPriv] = useState<any>(null);
+  useEffect(() => {
+    supabase.from("site_settings").select("*").eq("id",1).maybeSingle().then(({data}) => setS(data));
+    supabase.from("private_settings").select("*").eq("id",1).maybeSingle().then(({data}) =>
+      setPriv(data || { id:1, expected_account_name:"", expected_account_number:"", truemoney_phone:"" }));
+  }, []);
+  if (!s || !priv) return <div>กำลังโหลด...</div>;
   const save = async () => {
     const { error } = await supabase.from("site_settings").update(s).eq("id", 1);
-    if (error) toast.error(error.message); else toast.success("บันทึกแล้ว");
+    if (error) { toast.error(error.message); return; }
+    const { error: e2 } = await supabase.from("private_settings").upsert({ ...priv, id: 1 });
+    if (e2) toast.error(e2.message); else toast.success("บันทึกแล้ว");
   };
   return (
     <div className="space-y-4 max-w-2xl">
@@ -102,8 +109,8 @@ const PaymentTab = () => {
             </div>
             <Switch checked={s.easyslip_enabled} onCheckedChange={v=>setS({...s, easyslip_enabled:v})} />
           </div>
-          <Field label="ชื่อบัญชีตามที่จะปรากฏในสลิป (ใช้ตรวจสอบ)"><Input value={s.expected_account_name} onChange={e=>setS({...s, expected_account_name:e.target.value})} placeholder="เช่น สรุณวริทธิ์ ..." /></Field>
-          <Field label="เลขบัญชีจริง (ใช้เปรียบเทียบ 4 ตัวท้าย)"><Input value={s.expected_account_number} onChange={e=>setS({...s, expected_account_number:e.target.value})} placeholder="เช่น 1234567890" /></Field>
+          <Field label="ชื่อบัญชีตามที่จะปรากฏในสลิป (ใช้ตรวจสอบ — เก็บเป็นความลับ)"><Input value={priv.expected_account_name} onChange={e=>setPriv({...priv, expected_account_name:e.target.value})} placeholder="เช่น สรุณวริทธิ์ ..." /></Field>
+          <Field label="เลขบัญชีจริง (ใช้เปรียบเทียบ 4 ตัวท้าย — เก็บเป็นความลับ)"><Input value={priv.expected_account_number} onChange={e=>setPriv({...priv, expected_account_number:e.target.value})} placeholder="เช่น 1234567890" /></Field>
         </div>
       </Card>
 
@@ -113,7 +120,7 @@ const PaymentTab = () => {
           <Label>เปิดรับซอง TrueMoney อัตโนมัติ</Label>
           <Switch checked={s.truemoney_enabled} onCheckedChange={v=>setS({...s, truemoney_enabled:v})} />
         </div>
-        <Field label="เบอร์ TrueMoney Wallet ของร้าน (10 หลัก)"><Input value={s.truemoney_phone} onChange={e=>setS({...s, truemoney_phone:e.target.value})} placeholder="0812345678" /></Field>
+        <Field label="เบอร์ TrueMoney Wallet ของร้าน (10 หลัก — เก็บเป็นความลับ)"><Input value={priv.truemoney_phone} onChange={e=>setPriv({...priv, truemoney_phone:e.target.value})} placeholder="0812345678" /></Field>
         <p className="text-xs text-muted-foreground">ลูกค้าจะวางลิงก์ซอง → ระบบรับเงินเข้าเบอร์นี้ → เติม Wallet ลูกค้าอัตโนมัติ</p>
       </Card>
 
@@ -121,6 +128,7 @@ const PaymentTab = () => {
     </div>
   );
 };
+
 
 const AppearanceTab = () => {
   const [s, setS] = useState<any>(null);
