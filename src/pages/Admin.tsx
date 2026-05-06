@@ -584,7 +584,9 @@ const DiscountsTab = () => {
               </p>
             </div>
             <Switch checked={i.active} onCheckedChange={()=>toggle(i)} />
-            <Button size="sm" variant="ghost" onClick={()=>del(i.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+            <Button size="sm" variant="destructive" onClick={()=>del(i.id)}>
+              <Trash2 className="h-4 w-4 mr-1"/>ลบ
+            </Button>
           </Card>
         ))}
       </div>
