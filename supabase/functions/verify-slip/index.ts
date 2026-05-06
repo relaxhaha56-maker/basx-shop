@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
 
     // Get site settings (verify settings)
     const { data: settings } = await admin.from("site_settings").select("*").eq("id", 1).maybeSingle();
+    const { data: priv } = await admin.from("private_settings").select("*").eq("id", 1).maybeSingle();
     if (!settings?.easyslip_enabled) {
       // Auto-verify disabled — keep pending for manual review
       return new Response(JSON.stringify({ ok: true, status: "pending", message: "ส่งให้แอดมินตรวจสอบแล้ว" }),
