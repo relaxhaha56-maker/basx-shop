@@ -17,9 +17,6 @@ export type SiteSettings = {
   banner_text: string;
   easyslip_enabled: boolean;
   truemoney_enabled: boolean;
-  truemoney_phone: string;
-  expected_account_name: string;
-  expected_account_number: string;
   hero_title: string;
   hero_subtitle: string;
   footer_text: string;
