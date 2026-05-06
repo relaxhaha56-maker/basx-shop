@@ -10,9 +10,6 @@ export type SiteSettings = {
   particle_count: number;
   particle_speed: number;
   particle_enabled: boolean;
-  bank_name: string;
-  bank_account_number: string;
-  bank_account_name: string;
   discord_url: string;
   banner_text: string;
   easyslip_enabled: boolean;
