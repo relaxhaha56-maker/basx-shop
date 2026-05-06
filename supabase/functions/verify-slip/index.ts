@@ -74,8 +74,8 @@ Deno.serve(async (req) => {
     }
 
     // Match expected account
-    const expectedName = (settings.expected_account_name || "").trim();
-    const expectedNumber = (settings.expected_account_number || "").replace(/[^0-9]/g, "");
+    const expectedName = (priv?.expected_account_name || "").trim();
+    const expectedNumber = (priv?.expected_account_number || "").replace(/[^0-9]/g, "");
     const slipNumber = receiverNumber.replace(/[^0-9X]/gi, "");
 
     if (expectedName && !receiverName.includes(expectedName.split(" ")[0])) {
