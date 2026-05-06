@@ -29,8 +29,9 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data: settings } = await admin.from("site_settings").select("*").eq("id", 1).maybeSingle();
+    const { data: priv } = await admin.from("private_settings").select("*").eq("id", 1).maybeSingle();
     if (!settings?.truemoney_enabled) throw new Error("truemoney_disabled");
-    const phone = (settings.truemoney_phone || "").replace(/[^0-9]/g, "");
+    const phone = (priv?.truemoney_phone || "").replace(/[^0-9]/g, "");
     if (phone.length !== 10) throw new Error("shop_phone_invalid");
 
     // Check duplicate

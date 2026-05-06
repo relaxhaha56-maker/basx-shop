@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
 
     // Get site settings (verify settings)
     const { data: settings } = await admin.from("site_settings").select("*").eq("id", 1).maybeSingle();
+    const { data: priv } = await admin.from("private_settings").select("*").eq("id", 1).maybeSingle();
     if (!settings?.easyslip_enabled) {
       // Auto-verify disabled — keep pending for manual review
       return new Response(JSON.stringify({ ok: true, status: "pending", message: "ส่งให้แอดมินตรวจสอบแล้ว" }),
@@ -73,8 +74,8 @@ Deno.serve(async (req) => {
     }
 
     // Match expected account
-    const expectedName = (settings.expected_account_name || "").trim();
-    const expectedNumber = (settings.expected_account_number || "").replace(/[^0-9]/g, "");
+    const expectedName = (priv?.expected_account_name || "").trim();
+    const expectedNumber = (priv?.expected_account_number || "").replace(/[^0-9]/g, "");
     const slipNumber = receiverNumber.replace(/[^0-9X]/gi, "");
 
     if (expectedName && !receiverName.includes(expectedName.split(" ")[0])) {

@@ -181,6 +181,27 @@ export type Database = {
           },
         ]
       }
+      private_settings: {
+        Row: {
+          expected_account_name: string
+          expected_account_number: string
+          id: number
+          truemoney_phone: string
+        }
+        Insert: {
+          expected_account_name?: string
+          expected_account_number?: string
+          id?: number
+          truemoney_phone?: string
+        }
+        Update: {
+          expected_account_name?: string
+          expected_account_number?: string
+          id?: number
+          truemoney_phone?: string
+        }
+        Relationships: []
+      }
       product_stock: {
         Row: {
           created_at: string
@@ -331,8 +352,6 @@ export type Database = {
           custom_css: string
           discord_url: string
           easyslip_enabled: boolean
-          expected_account_name: string
-          expected_account_number: string
           font_body: string
           font_heading: string
           footer_text: string
@@ -355,7 +374,6 @@ export type Database = {
           shop_name: string
           show_announcement_bar: boolean
           truemoney_enabled: boolean
-          truemoney_phone: string
         }
         Insert: {
           accent_hue?: number
@@ -373,8 +391,6 @@ export type Database = {
           custom_css?: string
           discord_url?: string
           easyslip_enabled?: boolean
-          expected_account_name?: string
-          expected_account_number?: string
           font_body?: string
           font_heading?: string
           footer_text?: string
@@ -397,7 +413,6 @@ export type Database = {
           shop_name?: string
           show_announcement_bar?: boolean
           truemoney_enabled?: boolean
-          truemoney_phone?: string
         }
         Update: {
           accent_hue?: number
@@ -415,8 +430,6 @@ export type Database = {
           custom_css?: string
           discord_url?: string
           easyslip_enabled?: boolean
-          expected_account_name?: string
-          expected_account_number?: string
           font_body?: string
           font_heading?: string
           footer_text?: string
@@ -439,7 +452,6 @@ export type Database = {
           shop_name?: string
           show_announcement_bar?: boolean
           truemoney_enabled?: boolean
-          truemoney_phone?: string
         }
         Relationships: []
       }
