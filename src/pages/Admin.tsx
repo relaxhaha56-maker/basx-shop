@@ -85,7 +85,7 @@ const PaymentTab = () => {
   useEffect(() => {
     supabase.from("site_settings").select("*").eq("id",1).maybeSingle().then(({data}) => setS(data));
     supabase.from("private_settings").select("*").eq("id",1).maybeSingle().then(({data}) =>
-      setPriv(data || { id:1, expected_account_name:"", expected_account_number:"", truemoney_phone:"" }));
+      setPriv(data || { id:1, expected_account_name:"", expected_account_number:"", truemoney_phone:"", bank_name:"", bank_account_number:"", bank_account_name:"" }));
   }, []);
   if (!s || !priv) return <div>กำลังโหลด...</div>;
   const save = async () => {
@@ -98,9 +98,10 @@ const PaymentTab = () => {
     <div className="space-y-4 max-w-2xl">
       <Card className="p-6 gradient-card space-y-4">
         <h3 className="font-bold flex items-center gap-2">🏦 ธนาคาร + ตรวจสลิปอัตโนมัติ (EasySlip)</h3>
-        <Field label="ชื่อธนาคาร"><Input value={s.bank_name} onChange={e=>setS({...s, bank_name:e.target.value})} /></Field>
-        <Field label="เลขบัญชี (โชว์ให้ลูกค้า)"><Input value={s.bank_account_number} onChange={e=>setS({...s, bank_account_number:e.target.value})} /></Field>
-        <Field label="ชื่อบัญชี (โชว์ให้ลูกค้า)"><Input value={s.bank_account_name} onChange={e=>setS({...s, bank_account_name:e.target.value})} /></Field>
+        <p className="text-xs text-muted-foreground">ข้อมูลบัญชีเก็บแบบเข้ารหัส มองเห็นได้เฉพาะลูกค้าที่ล็อกอินแล้วในหน้าเติมเงิน</p>
+        <Field label="ชื่อธนาคาร"><Input value={priv.bank_name||""} onChange={e=>setPriv({...priv, bank_name:e.target.value})} /></Field>
+        <Field label="เลขบัญชี"><Input value={priv.bank_account_number||""} onChange={e=>setPriv({...priv, bank_account_number:e.target.value})} /></Field>
+        <Field label="ชื่อบัญชี"><Input value={priv.bank_account_name||""} onChange={e=>setPriv({...priv, bank_account_name:e.target.value})} /></Field>
         <div className="border-t border-border pt-4 space-y-3">
           <div className="flex items-center justify-between">
             <div>
