@@ -525,8 +525,18 @@ const DiscountsTab = () => {
     setCode(""); setValue(10); setMaxUses(""); setProductId("all"); load();
     toast.success("สร้างโค้ดแล้ว");
   };
-  const del = async (id: string) => { if (!confirm("ลบโค้ด?")) return; await supabase.from("discount_codes").delete().eq("id", id); load(); };
-  const toggle = async (i: any) => { await supabase.from("discount_codes").update({ active: !i.active }).eq("id", i.id); load(); };
+  const del = async (id: string) => {
+    if (!window.confirm("ลบโค้ดนี้?")) return;
+    const { error } = await supabase.from("discount_codes").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("ลบโค้ดแล้ว");
+    load();
+  };
+  const toggle = async (i: any) => {
+    const { error } = await supabase.from("discount_codes").update({ active: !i.active }).eq("id", i.id);
+    if (error) return toast.error(error.message);
+    load();
+  };
 
   return (
     <div className="space-y-4 max-w-3xl">
