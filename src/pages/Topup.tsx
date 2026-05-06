@@ -82,6 +82,15 @@ const BankForm = ({ onDone }: { onDone: () => void }) => {
   const [slipFile, setSlipFile] = useState<File | null>(null);
   const [slipPreview, setSlipPreview] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pay, setPay] = useState<{bank_name:string;bank_account_number:string;bank_account_name:string} | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("get_payment_info").then(({ data }) => {
+      const row = Array.isArray(data) ? data[0] : data;
+      if (row) setPay(row as any);
+    });
+  }, [user]);
 
   const copy = (t: string) => { navigator.clipboard.writeText(t); toast.success("คัดลอกแล้ว"); };
 
