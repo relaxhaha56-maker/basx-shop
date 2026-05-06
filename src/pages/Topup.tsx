@@ -144,14 +144,14 @@ const BankForm = ({ onDone }: { onDone: () => void }) => {
     <form onSubmit={submit} className="space-y-4 mt-4">
       <div className="rounded-xl p-5 bg-secondary border border-primary/30 space-y-3">
         <div className="flex items-center gap-2 text-primary"><Wallet className="h-4 w-4" /><span className="font-semibold">โอนผ่านธนาคาร</span></div>
-        <div className="flex justify-between"><span className="text-muted-foreground">ธนาคาร</span><span className="font-semibold">{settings?.bank_name}</span></div>
+        <div className="flex justify-between"><span className="text-muted-foreground">ธนาคาร</span><span className="font-semibold">{pay?.bank_name || "—"}</span></div>
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">เลขบัญชี</span>
-          <button type="button" onClick={() => copy(settings?.bank_account_number || "")} className="font-semibold text-primary text-glow flex items-center gap-2">
-            {settings?.bank_account_number} <Copy className="h-3.5 w-3.5" />
+          <button type="button" onClick={() => copy(pay?.bank_account_number || "")} className="font-semibold text-primary text-glow flex items-center gap-2">
+            {pay?.bank_account_number || "—"} <Copy className="h-3.5 w-3.5" />
           </button>
         </div>
-        <div className="flex justify-between"><span className="text-muted-foreground">ชื่อบัญชี</span><span className="font-semibold">{settings?.bank_account_name}</span></div>
+        <div className="flex justify-between"><span className="text-muted-foreground">ชื่อบัญชี</span><span className="font-semibold">{pay?.bank_account_name || "—"}</span></div>
       </div>
 
       <div className="space-y-2">
