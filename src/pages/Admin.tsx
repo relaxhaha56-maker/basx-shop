@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Trash2, Plus, Check, X, Upload, Image as ImageIcon, Eye } from "lucide-react";
 
@@ -504,6 +505,8 @@ const DiscountsTab = () => {
   const [value, setValue] = useState(10);
   const [productId, setProductId] = useState("all");
   const [maxUses, setMaxUses] = useState<string>("");
+  const [pendingDelete, setPendingDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const load = async () => {
     const { data } = await supabase.from("discount_codes").select("*, products(name)").order("created_at",{ascending:false});
@@ -527,9 +530,11 @@ const DiscountsTab = () => {
     toast.success("สร้างโค้ดแล้ว");
   };
   const del = async (id: string) => {
-    if (!window.confirm("ลบโค้ดนี้?")) return;
+    setIsDeleting(true);
     const { error } = await supabase.from("discount_codes").delete().eq("id", id);
+    setIsDeleting(false);
     if (error) return toast.error(error.message);
+    setPendingDelete(null);
     toast.success("ลบโค้ดแล้ว");
     load();
   };
@@ -540,58 +545,84 @@ const DiscountsTab = () => {
   };
 
   return (
-    <div className="space-y-4 max-w-3xl">
-      <Card className="p-6 gradient-card space-y-3">
-        <h3 className="font-bold">สร้างโค้ดส่วนลดใหม่</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="โค้ด"><Input placeholder="SAVE10" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} /></Field>
-          <Field label="ประเภท">
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger><SelectValue/></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="percent">ลด %</SelectItem>
-                <SelectItem value="amount">ลดเป็นบาท</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label={type === "percent" ? "ลด (%)" : "ลด (บาท)"}>
-            <Input type="number" step="0.01" value={value} onChange={e=>setValue(parseFloat(e.target.value)||0)} />
-          </Field>
-          <Field label="จำกัดจำนวนครั้ง (ว่าง=ไม่จำกัด)">
-            <Input type="number" value={maxUses} onChange={e=>setMaxUses(e.target.value)} />
-          </Field>
-          <Field label="ใช้กับสินค้า">
-            <Select value={productId} onValueChange={setProductId}>
-              <SelectTrigger><SelectValue/></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">ทุกสินค้า</SelectItem>
-                {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </Field>
-        </div>
-        <Button onClick={add} className="gradient-primary text-primary-foreground"><Plus className="h-4 w-4 mr-1"/>สร้างโค้ด</Button>
-      </Card>
+    <>
+      <div className="space-y-4 max-w-3xl">
+        <Card className="p-6 gradient-card space-y-3">
+          <h3 className="font-bold">สร้างโค้ดส่วนลดใหม่</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="โค้ด"><Input placeholder="SAVE10" value={code} onChange={e=>setCode(e.target.value.toUpperCase())} /></Field>
+            <Field label="ประเภท">
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger><SelectValue/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="percent">ลด %</SelectItem>
+                  <SelectItem value="amount">ลดเป็นบาท</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label={type === "percent" ? "ลด (%)" : "ลด (บาท)"}>
+              <Input type="number" step="0.01" value={value} onChange={e=>setValue(parseFloat(e.target.value)||0)} />
+            </Field>
+            <Field label="จำกัดจำนวนครั้ง (ว่าง=ไม่จำกัด)">
+              <Input type="number" value={maxUses} onChange={e=>setMaxUses(e.target.value)} />
+            </Field>
+            <Field label="ใช้กับสินค้า">
+              <Select value={productId} onValueChange={setProductId}>
+                <SelectTrigger><SelectValue/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทุกสินค้า</SelectItem>
+                  {products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+          <Button onClick={add} className="gradient-primary text-primary-foreground"><Plus className="h-4 w-4 mr-1"/>สร้างโค้ด</Button>
+        </Card>
 
-      <div className="space-y-2">
-        {items.map(i => (
-          <Card key={i.id} className="p-4 gradient-card flex items-center gap-3 flex-wrap">
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-primary">{i.code}</p>
-              <p className="text-xs text-muted-foreground">
-                {i.discount_type === "percent" ? `ลด ${i.discount_value}%` : `ลด ฿${i.discount_value}`} •
-                {i.products?.name ? ` เฉพาะ "${i.products.name}"` : " ทุกสินค้า"} •
-                ใช้แล้ว {i.uses_count}{i.max_uses ? `/${i.max_uses}` : ""} ครั้ง
-              </p>
-            </div>
-            <Switch checked={i.active} onCheckedChange={()=>toggle(i)} />
-            <Button size="sm" variant="destructive" onClick={()=>del(i.id)}>
-              <Trash2 className="h-4 w-4 mr-1"/>ลบ
-            </Button>
-          </Card>
-        ))}
+        <div className="space-y-2">
+          {items.map(i => (
+            <Card key={i.id} className="p-4 gradient-card flex items-center gap-3 flex-wrap">
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-primary">{i.code}</p>
+                <p className="text-xs text-muted-foreground">
+                  {i.discount_type === "percent" ? `ลด ${i.discount_value}%` : `ลด ฿${i.discount_value}`} •
+                  {i.products?.name ? ` เฉพาะ "${i.products.name}"` : " ทุกสินค้า"} •
+                  ใช้แล้ว {i.uses_count}{i.max_uses ? `/${i.max_uses}` : ""} ครั้ง
+                </p>
+              </div>
+              <Switch checked={i.active} onCheckedChange={()=>toggle(i)} />
+              <Button size="sm" variant="destructive" onClick={() => setPendingDelete(i)}>
+                <Trash2 className="h-4 w-4 mr-1"/>ลบ
+              </Button>
+            </Card>
+          ))}
+        </div>
       </div>
-    </div>
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(open) => !open && !isDeleting && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>ลบโค้ดส่วนลดนี้?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete ? `โค้ด ${pendingDelete.code} จะถูกลบถาวร และไม่สามารถกู้คืนได้` : "ยืนยันการลบโค้ดส่วนลด"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting || !pendingDelete}
+              onClick={(e) => {
+                e.preventDefault();
+                if (pendingDelete) del(pendingDelete.id);
+              }}
+            >
+              {isDeleting ? "กำลังลบ..." : "ยืนยันการลบ"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
