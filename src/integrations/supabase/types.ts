@@ -134,6 +134,50 @@ export type Database = {
         }
         Relationships: []
       }
+      key_inbox: {
+        Row: {
+          created_at: string
+          id: string
+          key_value: string | null
+          link_value: string | null
+          note: string | null
+          product_hint: string | null
+          product_id: string | null
+          source: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key_value?: string | null
+          link_value?: string | null
+          note?: string | null
+          product_hint?: string | null
+          product_id?: string | null
+          source?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key_value?: string | null
+          link_value?: string | null
+          note?: string | null
+          product_hint?: string | null
+          product_id?: string | null
+          source?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "key_inbox_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           created_at: string
