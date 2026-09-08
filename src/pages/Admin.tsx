@@ -412,9 +412,30 @@ const StockEditor = ({ product, onClose }: { product: any; onClose: () => void }
   const [items, setItems] = useState<any[]>([]);
   const [keyVal, setKeyVal] = useState("");
   const [linkVal, setLinkVal] = useState("");
+  const [genCount, setGenCount] = useState("1");
+  const [genToStock, setGenToStock] = useState(true);
+  const [genBusy, setGenBusy] = useState(false);
   const dt = product.delivery_type as string;
   const needKey = dt === "key" || dt === "key_link";
   const needLink = dt === "link" || dt === "key_link";
+
+  const generate = async () => {
+    const count = parseInt(genCount, 10);
+    if (!Number.isInteger(count) || count < 1 || count > 100) return toast.error("จำนวนต้องอยู่ระหว่าง 1-100");
+    setGenBusy(true);
+    const { data, error } = await supabase.functions.invoke("generate-keys", {
+      body: { product_id: product.id, count, add_to_stock: genToStock },
+    });
+    setGenBusy(false);
+    const err = error?.message || (data as any)?.error;
+    if (err) {
+      if (String(err).includes("keygen_not_configured")) return toast.error("ยังไม่ได้ตั้งค่าเว็บเจนคีย์ (URL + รหัสลับ)");
+      return toast.error(`สร้างคีย์ไม่สำเร็จ: ${err}`);
+    }
+    toast.success(genToStock ? `สร้างคีย์ ${(data as any).generated} ชิ้น เข้าสต็อกแล้ว` : `สร้างคีย์ ${(data as any).generated} ชิ้น เก็บไว้ในกล่องเข้า`);
+    load();
+  };
+
 
   const load = async () => {
     const { data } = await supabase.from("product_stock").select("*").eq("product_id", product.id).order("created_at",{ascending:false});
