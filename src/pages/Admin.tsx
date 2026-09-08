@@ -412,9 +412,30 @@ const StockEditor = ({ product, onClose }: { product: any; onClose: () => void }
   const [items, setItems] = useState<any[]>([]);
   const [keyVal, setKeyVal] = useState("");
   const [linkVal, setLinkVal] = useState("");
+  const [genCount, setGenCount] = useState("1");
+  const [genToStock, setGenToStock] = useState(true);
+  const [genBusy, setGenBusy] = useState(false);
   const dt = product.delivery_type as string;
   const needKey = dt === "key" || dt === "key_link";
   const needLink = dt === "link" || dt === "key_link";
+
+  const generate = async () => {
+    const count = parseInt(genCount, 10);
+    if (!Number.isInteger(count) || count < 1 || count > 100) return toast.error("จำนวนต้องอยู่ระหว่าง 1-100");
+    setGenBusy(true);
+    const { data, error } = await supabase.functions.invoke("generate-keys", {
+      body: { product_id: product.id, count, add_to_stock: genToStock },
+    });
+    setGenBusy(false);
+    const err = error?.message || (data as any)?.error;
+    if (err) {
+      if (String(err).includes("keygen_not_configured")) return toast.error("ยังไม่ได้ตั้งค่าเว็บเจนคีย์ (URL + รหัสลับ)");
+      return toast.error(`สร้างคีย์ไม่สำเร็จ: ${err}`);
+    }
+    toast.success(genToStock ? `สร้างคีย์ ${(data as any).generated} ชิ้น เข้าสต็อกแล้ว` : `สร้างคีย์ ${(data as any).generated} ชิ้น เก็บไว้ในกล่องเข้า`);
+    load();
+  };
+
 
   const load = async () => {
     const { data } = await supabase.from("product_stock").select("*").eq("product_id", product.id).order("created_at",{ascending:false});
@@ -444,6 +465,23 @@ const StockEditor = ({ product, onClose }: { product: any; onClose: () => void }
         {needLink && <Input placeholder="ลิงก์โหลดที่จะส่งให้ลูกค้า" value={linkVal} onChange={e=>setLinkVal(e.target.value)} />}
         <Button onClick={add} className="gradient-primary text-primary-foreground"><Plus className="h-4 w-4 mr-1"/>เพิ่มสต็อก 1 ชิ้น</Button>
       </div>
+      <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+        <p className="text-sm font-semibold">สร้างคีย์อัตโนมัติ</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Label className="text-xs">จำนวน</Label>
+            <Input type="number" min={1} max={100} value={genCount} onChange={e=>setGenCount(e.target.value)} className="w-20" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch checked={genToStock} onCheckedChange={setGenToStock} />
+            <Label className="text-xs">{genToStock ? "เข้าสต็อกทันที" : "เก็บในกล่องเข้า (ไม่ขึ้นขาย)"}</Label>
+          </div>
+          <Button onClick={generate} disabled={genBusy} className="gradient-primary text-primary-foreground">
+            <Plus className="h-4 w-4 mr-1"/>{genBusy ? "กำลังสร้าง..." : "กดสร้างคีย์"}
+          </Button>
+        </div>
+      </div>
+
       <div className="space-y-1 max-h-64 overflow-auto">
         {items.map(i => (
           <div key={i.id} className="flex items-center gap-2 p-2 rounded bg-secondary text-xs">
