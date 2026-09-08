@@ -40,24 +40,40 @@ Deno.serve(async (req) => {
 
     const keygenUrl = Deno.env.get("KEYGEN_URL");
     const keygenKey = Deno.env.get("KEYGEN_API_KEY");
-    if (!keygenUrl || !keygenKey) return json({ error: "keygen_not_configured" }, 400);
 
-    const res = await fetch(keygenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": keygenKey },
-      body: JSON.stringify({ product_name: prod.name, product_id: prod.id, count }),
-    });
-    const text = await res.text();
-    if (!res.ok) return json({ error: "keygen_failed", status: res.status, detail: text.slice(0, 500) }, 502);
+    let keys: { key: string | null; link: string | null }[] = [];
 
-    let parsed: any = {};
-    try { parsed = JSON.parse(text); } catch { return json({ error: "keygen_bad_response", detail: text.slice(0, 300) }, 502); }
+    if (keygenUrl && keygenKey) {
+      const res = await fetch(keygenUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": keygenKey },
+        body: JSON.stringify({ product_name: prod.name, product_id: prod.id, count }),
+      });
+      const text = await res.text();
+      if (!res.ok) return json({ error: "keygen_failed", status: res.status, detail: text.slice(0, 500) }, 502);
 
-    const raw = parsed?.keys ?? parsed?.data ?? [];
-    const keys = (Array.isArray(raw) ? raw : []).map((k: any) =>
-      typeof k === "string" ? { key: k, link: null } : { key: k?.key ?? null, link: k?.link ?? null }
-    ).filter((k: any) => k.key || k.link);
-    if (keys.length === 0) return json({ error: "keygen_returned_no_keys" }, 502);
+      let parsed: any = {};
+      try { parsed = JSON.parse(text); } catch { return json({ error: "keygen_bad_response", detail: text.slice(0, 300) }, 502); }
+
+      const raw = parsed?.keys ?? parsed?.data ?? [];
+      keys = (Array.isArray(raw) ? raw : []).map((k: any) =>
+        typeof k === "string" ? { key: k, link: null } : { key: k?.key ?? null, link: k?.link ?? null }
+      ).filter((k: any) => k.key || k.link);
+      if (keys.length === 0) return json({ error: "keygen_returned_no_keys" }, 502);
+    } else {
+      // Fallback: generate keys locally so the admin button works without an external site.
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      const group = () => {
+        const bytes = new Uint8Array(4);
+        crypto.getRandomValues(bytes);
+        return Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("");
+      };
+      keys = Array.from({ length: count }, () => ({
+        key: `BASX-${group()}-${group()}-${group()}`,
+        link: null,
+      }));
+    }
+
 
     if (addToStock) {
       const { error } = await admin.from("product_stock").insert(
