@@ -465,6 +465,23 @@ const StockEditor = ({ product, onClose }: { product: any; onClose: () => void }
         {needLink && <Input placeholder="ลิงก์โหลดที่จะส่งให้ลูกค้า" value={linkVal} onChange={e=>setLinkVal(e.target.value)} />}
         <Button onClick={add} className="gradient-primary text-primary-foreground"><Plus className="h-4 w-4 mr-1"/>เพิ่มสต็อก 1 ชิ้น</Button>
       </div>
+      <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+        <p className="text-sm font-semibold">สร้างคีย์อัตโนมัติ</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Label className="text-xs">จำนวน</Label>
+            <Input type="number" min={1} max={100} value={genCount} onChange={e=>setGenCount(e.target.value)} className="w-20" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch checked={genToStock} onCheckedChange={setGenToStock} />
+            <Label className="text-xs">{genToStock ? "เข้าสต็อกทันที" : "เก็บในกล่องเข้า (ไม่ขึ้นขาย)"}</Label>
+          </div>
+          <Button onClick={generate} disabled={genBusy} className="gradient-primary text-primary-foreground">
+            <Plus className="h-4 w-4 mr-1"/>{genBusy ? "กำลังสร้าง..." : "กดสร้างคีย์"}
+          </Button>
+        </div>
+      </div>
+
       <div className="space-y-1 max-h-64 overflow-auto">
         {items.map(i => (
           <div key={i.id} className="flex items-center gap-2 p-2 rounded bg-secondary text-xs">
